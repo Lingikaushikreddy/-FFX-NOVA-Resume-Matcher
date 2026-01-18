@@ -4,6 +4,12 @@
 
 import { motion } from 'framer-motion';
 
+/**
+ * ScoreGauge Component
+ * 
+ * Displays a circular progress gauge for match scores.
+ * Visualizes the score with a color-coded ring and percentage text.
+ */
 interface ScoreGaugeProps {
   score: number;
   label?: string;
