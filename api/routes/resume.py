@@ -5,9 +5,12 @@ Provides API endpoints for uploading, retrieving, and
 managing resumes in the system.
 """
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
 from sqlalchemy.orm import Session
 import logging
+import tempfile
+import os
+import shutil
 
 from api.schemas import (
     ResumeUploadRequest,
@@ -15,6 +18,7 @@ from api.schemas import (
     ResumeGetResponse,
 )
 from resume_parser.models.resume import Resume, ContactInfo
+from resume_parser.parser import ResumeParser
 from database import get_db_session, ResumeDBService
 from embeddings import get_embedding_service
 
@@ -88,6 +92,67 @@ async def upload_resume(request: ResumeUploadRequest):
     except Exception as e:
         logger.error(f"Error uploading resume: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/upload-file", response_model=ResumeUploadResponse)
+async def upload_resume_file(file: UploadFile = File(...)):
+    """
+    Upload a resume file (PDF/DOCX), parse it, and store in database.
+    """
+    tmp_path = None
+    try:
+        # Validate file type
+        filename = file.filename or "unknown"
+        if not filename.lower().endswith(('.pdf', '.docx')):
+             raise HTTPException(status_code=400, detail="Only PDF and DOCX files are supported")
+
+        # Save to temp file
+        suffix = os.path.splitext(filename)[1]
+        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+            shutil.copyfileobj(file.file, tmp)
+            tmp_path = tmp.name
+
+        # Parse resume
+        parser = ResumeParser()
+        resume = parser.parse(tmp_path)
+        
+        # Add file metadata
+        resume.file_path = filename # Store original filename
+        resume.file_type = suffix[1:] if suffix else "" # pdf or docx
+        
+        # Generate embedding
+        embedding_service = get_embedding_service()
+        embedding = embedding_service.encode(resume.raw_text)
+
+        # Store in database
+        with get_db_session() as session:
+            # Check for existing by email if present
+            # Note: For now we allow re-uploads or handle duplicates gracefully
+            if resume.contact.email:
+                existing = ResumeDBService.get_by_email(session, resume.contact.email)
+                if existing:
+                     # Update or just log? For simple demo, we can just return the existing one or overwrite
+                     pass 
+
+            db_resume = ResumeDBService.create(
+                session, resume, embedding, file_path=filename
+            )
+
+            return ResumeUploadResponse(
+                resume_id=db_resume.id,
+                message="Resume processed successfully",
+                candidate_name=resume.contact.name,
+                candidate_email=resume.contact.email,
+                skills_count=len(resume.skills)
+            )
+
+    except Exception as e:
+        logger.error(f"Error processing file upload: {e}")
+        raise HTTPException(status_code=500, detail=f"Processing error: {str(e)}")
+    finally:
+        # Cleanup temp file
+        if tmp_path and os.path.exists(tmp_path):
+            os.unlink(tmp_path)
 
 
 @router.get("/{resume_id}", response_model=ResumeGetResponse)
