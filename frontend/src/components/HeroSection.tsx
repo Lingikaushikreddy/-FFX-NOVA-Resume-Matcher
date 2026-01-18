@@ -1,229 +1,193 @@
-/**
- * Premium Hero Section - FFX NOVA
- * Stunning animated hero with glassmorphism and gradient effects
- */
-
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { ArrowRight, Sparkles, Shield, Target, TrendingUp, ChevronDown } from 'lucide-react';
 import { useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { motion, useScroll, useTransform, useSpring, useMotionValue, useMotionTemplate } from 'framer-motion';
+import { FileText, Briefcase, ChevronRight, Upload, CheckCircle, Shield } from 'lucide-react';
+import { AtmosphereParticles } from './ui/AtmosphereParticles';
 
 export function HeroSection() {
-  const ref = useRef<HTMLElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ['start start', 'end start'],
+    target: containerRef,
+    offset: ["start start", "end start"]
   });
 
-  const y = useTransform(scrollYProgress, [0, 1], ['0%', '50%']);
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-
-  const stats = [
-    { value: '10,000+', label: 'Jobs Matched', icon: Target },
-    { value: '500+', label: 'Active Employers', icon: Shield },
-    { value: '95%', label: 'Match Accuracy', icon: TrendingUp },
-  ];
+  // Parallax & Fade effects
+  const yText = useTransform(scrollYProgress, [0, 1], ["0%", "40%"]);
+  const opacityText = useTransform(scrollYProgress, [0, 0.4], [1, 0]);
+  const scaleCards = useTransform(scrollYProgress, [0, 1], [1, 0.8]);
+  const rotateOrbits = useTransform(scrollYProgress, [0, 1], [0, 45]);
 
   return (
-    <section
-      ref={ref}
-      className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-primary-900 to-secondary-900"
-    >
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        {/* Gradient Orbs */}
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute -top-1/4 -right-1/4 w-[800px] h-[800px] rounded-full bg-gradient-to-br from-primary-500/30 to-secondary-500/30 blur-3xl"
-        />
-        <motion.div
-          animate={{
-            scale: [1.2, 1, 1.2],
-            opacity: [0.2, 0.4, 0.2],
-          }}
-          transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-          className="absolute -bottom-1/4 -left-1/4 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-secondary-500/30 to-accent-500/30 blur-3xl"
-        />
-        <motion.div
-          animate={{
-            scale: [1, 1.1, 1],
-            x: [0, 50, 0],
-            y: [0, -30, 0],
-          }}
-          transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-accent-500/20 to-primary-500/20 blur-3xl"
-        />
+    <div ref={containerRef} className="relative min-h-screen flex items-center justify-center overflow-hidden bg-slate-950 perspective-[2000px]">
+      <AtmosphereParticles />
 
-        {/* Grid Pattern */}
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-                            linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
-            backgroundSize: '50px 50px',
-          }}
-        />
+      {/* Cinematic Spotlight */}
+      <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[1000px] h-[1000px] bg-primary-500/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[800px] h-[800px] bg-secondary-600/5 rounded-full blur-[100px] pointer-events-none" />
 
-        {/* Floating Particles */}
-        {[...Array(20)].map((_, i) => (
+      {/* Grain Overlay */}
+      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 pointer-events-none mix-blend-overlay"></div>
+
+      <div className="container relative z-10 px-4 pt-20">
+        <div className="grid lg:grid-cols-2 gap-16 items-center">
+
+          {/* Text Content */}
           <motion.div
-            key={i}
-            className="absolute w-1 h-1 bg-white/30 rounded-full"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              y: [0, -100, 0],
-              opacity: [0, 1, 0],
-            }}
-            transition={{
-              duration: 5 + Math.random() * 5,
-              repeat: Infinity,
-              delay: Math.random() * 5,
-              ease: 'easeInOut',
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Main Content */}
-      <motion.div style={{ y, opacity }} className="relative z-10 container mx-auto px-4 pt-32 pb-20">
-        <div className="max-w-5xl mx-auto text-center">
-          {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-8"
+            style={{ y: yText, opacity: opacityText }}
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            className="space-y-8 relative z-20"
           >
-            <Sparkles className="w-4 h-4 text-accent-400" />
-            <span className="text-sm font-medium text-white/90">
-              AI-Powered Security Clearance Matching
-            </span>
-          </motion.div>
+            {/* Badge */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-800/50 border border-slate-700/50 backdrop-blur-md shadow-lg"
+            >
+              <div className="flex h-2 w-2 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+              </div>
+              <span className="text-xs font-medium text-slate-300 tracking-wide uppercase">AI Career Intelligence</span>
+            </motion.div>
 
-          {/* Main Headline */}
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-white mb-6"
-          >
-            Find Your Perfect
-            <br />
-            <span className="relative">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 via-secondary-400 to-accent-400">
-                Match
+            {/* Headline */}
+            <h1 className="text-5xl lg:text-7xl font-bold tracking-tight text-white leading-[1.1]">
+              Target Your <br />
+              <span className="text-gradient-primary animate-gradient bg-[length:200%_auto]">
+                Next Mission
               </span>
-              <motion.span
-                className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-primary-400 via-secondary-400 to-accent-400 rounded-full"
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ duration: 0.8, delay: 0.5 }}
-              />
-            </span>
-            {' '}in NoVA
-          </motion.h1>
+            </h1>
 
-          {/* Subheadline */}
-          <motion.p
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-xl md:text-2xl text-white/70 max-w-3xl mx-auto mb-10 leading-relaxed"
-          >
-            Connecting Federal, Military, and Tech talent with top employers
-            using AI that understands your skills{' '}
-            <span className="text-white font-medium">beyond keyword matching</span>.
-          </motion.p>
+            <p className="text-lg text-slate-400 max-w-lg leading-relaxed font-light">
+              The only AI-powered platform designed for
+              <span className="text-slate-200 font-medium mx-1">Federal</span>,
+              <span className="text-slate-200 font-medium mx-1">Military</span>, and
+              <span className="text-slate-200 font-medium mx-1">Tech</span>
+              professionals in Northern Virginia. Match by capability, not just keywords.
+            </p>
 
-          {/* CTA Buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center mb-16"
-          >
-            <Link to="/upload">
-              <motion.button
-                whileHover={{ scale: 1.02, boxShadow: '0 20px 40px -10px rgba(59, 130, 246, 0.5)' }}
-                whileTap={{ scale: 0.98 }}
-                className="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white overflow-hidden rounded-2xl"
+            {/* Buttons */}
+            <div className="flex flex-wrap gap-4 pt-2">
+              <button
+                onClick={() => document.getElementById('upload-zone')?.scrollIntoView({ behavior: 'smooth' })}
+                className="group relative px-8 py-4 bg-primary-600 hover:bg-primary-500 text-white rounded-xl font-semibold shadow-2xl shadow-primary-600/30 transition-all hover:scale-[1.02] active:scale-[0.98] overflow-hidden"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-primary-500 to-secondary-500" />
-                <div className="absolute inset-0 bg-gradient-to-r from-primary-400 to-secondary-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <span className="relative flex items-center gap-2">
-                  Upload Your Resume
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:animate-shimmer" />
+                <span className="flex items-center gap-2 relative z-10">
+                  Upload Resume <Upload className="w-5 h-5 group-hover:-translate-y-1 transition-transform" />
                 </span>
-              </motion.button>
-            </Link>
-            <Link to="/jobs">
-              <motion.button
-                whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.15)' }}
-                whileTap={{ scale: 0.98 }}
-                className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl transition-colors"
-              >
-                Browse 10,000+ Jobs
-              </motion.button>
-            </Link>
+              </button>
+
+              <button className="px-8 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl font-semibold backdrop-blur-sm transition-all flex items-center gap-2">
+                Explore Jobs <ChevronRight className="w-4 h-4 text-slate-400" />
+              </button>
+            </div>
+
+            {/* Trust Badges */}
+            <div className="pt-8 flex items-center gap-6 text-sm font-medium text-slate-500 border-t border-white/5">
+              <div className="flex items-center gap-2">
+                <Shield className="w-4 h-4 text-emerald-500" />
+                <span>Secret+ Clearance Ready</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Briefcase className="w-4 h-4 text-blue-500" />
+                <span>10k+ Federal Roles</span>
+              </div>
+            </div>
           </motion.div>
 
-          {/* Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto"
-          >
-            {stats.map((stat, index) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
-                whileHover={{ scale: 1.05, backgroundColor: 'rgba(255,255,255,0.12)' }}
-                className="relative group p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 transition-all"
+          {/* 3D Visual - Orbiting Cards */}
+          <div className="relative h-[600px] w-full hidden lg:flex items-center justify-center perspective-[2000px] z-10">
+            <motion.div
+              style={{ scale: scaleCards, rotateY: rotateOrbits }}
+              className="relative w-full h-full flex items-center justify-center preserve-3d"
+            >
+              {/* Central Resume Card */}
+              <FloatingCard
+                delay={0}
+                className="z-30 w-80 glass-card p-6 rounded-2xl border-white/10"
               >
-                <div className="flex items-center justify-center gap-3">
-                  <div className="p-2 rounded-xl bg-gradient-to-br from-primary-500/20 to-secondary-500/20">
-                    <stat.icon className="w-5 h-5 text-primary-400" />
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-lg shadow-primary-500/30">
+                    <FileText className="w-6 h-6 text-white" />
                   </div>
-                  <div className="text-left">
-                    <div className="text-3xl font-bold text-white">{stat.value}</div>
-                    <div className="text-sm text-white/60 uppercase tracking-wide">{stat.label}</div>
+                  <div>
+                    <div className="h-2 w-24 bg-white/20 rounded-full mb-2" />
+                    <div className="h-1.5 w-16 bg-white/10 rounded-full" />
                   </div>
                 </div>
-              </motion.div>
-            ))}
-          </motion.div>
+                <div className="space-y-3 opacity-50">
+                  <div className="h-1.5 w-full bg-white/20 rounded-full" />
+                  <div className="h-1.5 w-5/6 bg-white/20 rounded-full" />
+                  <div className="h-1.5 w-4/6 bg-white/20 rounded-full" />
+                </div>
+                {/* Scanning Line */}
+                <motion.div
+                  initial={{ top: "0%" }}
+                  animate={{ top: "100%" }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                  className="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary-400 to-transparent shadow-[0_0_15px_rgba(96,165,250,0.8)]"
+                />
+              </FloatingCard>
+
+              {/* Satellite Job Cards */}
+              <SatelliteCard
+                x={180} y={-80} z={-50} delay={0.5}
+                icon="N" color="bg-emerald-500" score="98%" title="AI Engineer"
+              />
+              <SatelliteCard
+                x={-160} y={60} z={-100} delay={0.8}
+                icon="L" color="bg-purple-500" score="94%" title="Cloud Arch"
+              />
+              <SatelliteCard
+                x={140} y={120} z={50} delay={1.1}
+                icon="B" color="bg-orange-500" score="89%" title="Cyber Analyst"
+              />
+
+            </motion.div>
+          </div>
+
         </div>
-      </motion.div>
+      </div>
+    </div>
+  );
+}
 
-      {/* Scroll Indicator */}
+function FloatingCard({ children, className, delay = 0 }: { children: React.ReactNode, className?: string, delay?: number }) {
+  return (
+    <motion.div
+      initial={{ y: 20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ delay, duration: 0.8 }}
+    >
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
+        animate={{ y: [-15, 15] }}
+        transition={{ duration: 6, repeat: Infinity, repeatType: "mirror", ease: "easeInOut", delay: delay * 2 }}
+        className={className}
       >
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="flex flex-col items-center gap-2 text-white/50"
-        >
-          <span className="text-sm font-medium">Scroll to explore</span>
-          <ChevronDown className="w-5 h-5" />
-        </motion.div>
+        {children}
       </motion.div>
+    </motion.div>
+  );
+}
 
-      {/* Bottom Gradient Fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white dark:from-slate-900 to-transparent" />
-    </section>
+function SatelliteCard({ x, y, z, delay, icon, color, score, title }: any) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0 }}
+      animate={{ opacity: 1, scale: 1, x, y, z }}
+      transition={{ delay, duration: 0.8, type: "spring" }}
+      className="absolute glass-card p-4 rounded-xl flex items-center gap-3 w-48 shadow-xl border-white/5"
+    >
+      <div className={`w-8 h-8 rounded-lg ${color} flex items-center justify-center text-white font-bold text-xs shadow-lg`}>
+        {icon}
+      </div>
+      <div>
+        <div className="text-sm font-semibold text-white">{title}</div>
+        <div className="text-xs text-green-400 font-mono">{score} Match</div>
+      </div>
+    </motion.div>
   );
 }
