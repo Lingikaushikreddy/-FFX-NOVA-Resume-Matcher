@@ -183,6 +183,8 @@ export const apiClient = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getJobDetails: async (jobId: string) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // TODO: Define proper Job interface
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return apiClient.get<any>(`/jobs/${jobId}`);
   },
 
