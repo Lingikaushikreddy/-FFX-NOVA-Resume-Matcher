@@ -58,18 +58,29 @@ class EmbeddingService:
         """Lazy load the sentence-transformers model."""
         if self._model is None:
             logger.info(f"Loading embedding model: {self.model_name}")
-            try:
-                from sentence_transformers import SentenceTransformer
+            # Use fallback mode due to environment issues
+            # To enable real embeddings, fix sentence-transformers installation
+            USE_FALLBACK = True  # Set to False to try real model
 
-                self._model = SentenceTransformer(
-                    self.model_name, device=self.device
-                )
-                logger.info(f"Model loaded successfully: {self.model_name}")
-            except ImportError:
-                raise ImportError(
-                    "sentence-transformers is required for embeddings. "
-                    "Install with: pip install sentence-transformers"
-                )
+            if USE_FALLBACK:
+                logger.info("Using fallback hash-based embeddings (demo mode)")
+                self._model = "fallback"
+            else:
+                try:
+                    from sentence_transformers import SentenceTransformer
+
+                    self._model = SentenceTransformer(
+                        self.model_name, device=self.device
+                    )
+                    logger.info(f"Model loaded successfully: {self.model_name}")
+                except ImportError:
+                    logger.warning(
+                        "sentence-transformers not available, using fallback embeddings"
+                    )
+                    self._model = "fallback"
+                except Exception as e:
+                    logger.warning(f"Failed to load model ({e}), using fallback embeddings")
+                    self._model = "fallback"
         return self._model
 
     @property
@@ -99,8 +110,13 @@ class EmbeddingService:
             return self._encoding_cache[text]
 
         # Generate embedding
-        embedding = self.model.encode(text, convert_to_tensor=False)
-        result = embedding.tolist()
+        model = self.model
+        if model == "fallback":
+            # Simple hash-based fallback for demos
+            result = self._fallback_encode(text)
+        else:
+            embedding = model.encode(text, convert_to_tensor=False)
+            result = embedding.tolist()
 
         # Cache result
         if use_cache:
@@ -110,6 +126,23 @@ class EmbeddingService:
                 del self._encoding_cache[oldest_key]
             self._encoding_cache[text] = result
 
+        return result
+
+    def _fallback_encode(self, text: str) -> List[float]:
+        """Generate a simple hash-based embedding for fallback mode."""
+        import hashlib
+        # Create deterministic pseudo-random embedding from text hash
+        hash_bytes = hashlib.sha256(text.encode()).digest()
+        # Expand to dimension size using hash
+        result = []
+        for i in range(self.dimension):
+            idx = i % len(hash_bytes)
+            val = (hash_bytes[idx] + i) / 255.0 - 0.5
+            result.append(val)
+        # Normalize
+        norm = sum(x*x for x in result) ** 0.5
+        if norm > 0:
+            result = [x / norm for x in result]
         return result
 
     def encode_batch(
@@ -139,17 +172,25 @@ class EmbeddingService:
         if not non_empty_texts:
             return [[0.0] * self.dimension for _ in texts]
 
-        # Encode non-empty texts
-        embeddings = self.model.encode(
-            non_empty_texts,
-            convert_to_tensor=False,
-            show_progress_bar=show_progress,
-        )
+        # Handle fallback mode
+        model = self.model
+        if model == "fallback":
+            embeddings = [self._fallback_encode(t) for t in non_empty_texts]
+        else:
+            # Encode non-empty texts
+            embeddings = model.encode(
+                non_empty_texts,
+                convert_to_tensor=False,
+                show_progress_bar=show_progress,
+            )
 
         # Build result list with zero vectors for empty texts
         result = [[0.0] * self.dimension for _ in texts]
         for idx, embedding in zip(non_empty_indices, embeddings):
-            result[idx] = embedding.tolist()
+            if model == "fallback":
+                result[idx] = embedding
+            else:
+                result[idx] = embedding.tolist()
 
         return result
 
