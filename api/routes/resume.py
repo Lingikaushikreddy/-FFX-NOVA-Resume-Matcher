@@ -88,17 +88,14 @@ async def upload_resume(request: ResumeUploadRequest):
             )
 
     except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error uploading resume: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.post("/upload-file", response_model=ResumeUploadResponse)
-async def upload_resume_file(file: UploadFile = File(...)):
+async def upload_resume(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db_session),
+):
     """
     Upload a resume file (PDF/DOCX), parse it, and store in database.
     """
+    logger.info(f"Received resume upload request: {file.filename}")
     tmp_path = None
     try:
         # Validate file type
