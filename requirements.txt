@@ -1,5 +1,6 @@
 # Resume Parser Dependencies
-# FFX NOVA Resume Matching Platform
+# FFX NOVA Resume Matching Platform - Backend Dependencies
+# Python 3.10+
 
 # Document Processing
 PyPDF2>=3.0.0
