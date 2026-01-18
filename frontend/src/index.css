@@ -1,3 +1,7 @@
+/**
+ * FFX NOVA Resume Matcher - Global Styles
+ * Uses Tailwind CSS v4 directives.
+ */
 @import "tailwindcss";
 
 @theme {
