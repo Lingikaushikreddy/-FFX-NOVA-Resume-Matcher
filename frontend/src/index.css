@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @theme {
+  /* Brand Colors - Deep Space & Neon */
   --color-primary-50: #eff6ff;
   --color-primary-100: #dbeafe;
   --color-primary-200: #bfdbfe;
@@ -11,6 +12,7 @@
   --color-primary-700: #1d4ed8;
   --color-primary-800: #1e40af;
   --color-primary-900: #1e3a8a;
+  --color-primary-950: #172554;
 
   --color-secondary-50: #f5f3ff;
   --color-secondary-100: #ede9fe;
@@ -22,106 +24,110 @@
   --color-secondary-700: #6d28d9;
   --color-secondary-800: #5b21b6;
   --color-secondary-900: #4c1d95;
+  --color-secondary-950: #2e1065;
 
+  /* Accent - Cyber Cyan */
+  --color-accent-400: #22d3ee;
   --color-accent-500: #06b6d4;
+  --color-accent-600: #0891b2;
+
+  /* Backgrounds */
+  --color-slate-850: #172033;
+  --color-slate-925: #0a0f1c;
+  --color-slate-950: #020617;
+  /* Deepest space */
 
   --font-sans: 'Inter', system-ui, sans-serif;
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+
+  /* Animations */
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-pulse-slow: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-gradient: gradient 8s linear infinite;
+
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+
+  @keyframes gradient {
+    0% {
+      background-position: 0% 50%;
+    }
+
+    50% {
+      background-position: 100% 50%;
+    }
+
+    100% {
+      background-position: 0% 50%;
+    }
+  }
 }
 
 @layer base {
-  /* Default light mode */
   :root {
-    --tooltip-bg: white;
-    --tooltip-border: #e2e8f0;
-    color-scheme: light;
-  }
-
-  /* Dark mode */
-  .dark {
-    --tooltip-bg: #1e293b;
-    --tooltip-border: #334155;
     color-scheme: dark;
   }
 
   body {
-    @apply bg-white text-slate-900 antialiased transition-colors;
+    @apply bg-slate-950 text-slate-100 antialiased overflow-x-hidden;
+    background-image:
+      radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15), transparent 40%),
+      radial-gradient(circle at 100% 0%, rgba(124, 58, 237, 0.1), transparent 40%);
   }
 
-  .dark body {
-    @apply bg-slate-900 text-slate-100;
+  /* Cinematic Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
   }
 
-  /* Focus ring styles */
-  *:focus-visible {
-    @apply outline-none ring-2 ring-primary-500 ring-offset-2 ring-offset-white;
+  ::-webkit-scrollbar-track {
+    @apply bg-slate-950;
   }
 
-  .dark *:focus-visible {
-    @apply ring-offset-slate-900;
+  ::-webkit-scrollbar-thumb {
+    @apply bg-slate-800 rounded-full border-2 border-slate-950;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-700;
   }
 }
 
 @layer utilities {
-  /* Shimmer animation for skeleton loading */
-  @keyframes shimmer {
-    100% {
-      transform: translateX(100%);
-    }
+
+  /* Premium Glassmorphism */
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl;
   }
 
-  .animate-shimmer {
-    animation: shimmer 2s infinite;
+  .glass-panel {
+    @apply bg-slate-900/60 backdrop-blur-md border border-white/5;
   }
 
-  /* Smooth scrolling */
-  .smooth-scroll {
-    scroll-behavior: smooth;
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-400 via-secondary-400 to-accent-400;
   }
 
-  /* Hide scrollbar but keep functionality */
-  .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+  .text-gradient-primary {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-400 to-secondary-400;
   }
 
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
-
-  /* Custom scrollbar styles */
-  .scrollbar-thin {
-    scrollbar-width: thin;
-    scrollbar-color: #cbd5e1 transparent;
-  }
-
-  .dark .scrollbar-thin {
-    scrollbar-color: #475569 transparent;
-  }
-
-  .scrollbar-thin::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-
-  .scrollbar-thin::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: #cbd5e1;
-    border-radius: 3px;
-  }
-
-  .dark .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: #475569;
+  /* Magnetic hover effect helper (requires JS for position) */
+  .magnetic-hover {
+    @apply transition-transform duration-300 ease-out;
   }
 }
 
-/* Selection colors */
+/* Global Selection */
 ::selection {
-  @apply bg-primary-100 text-primary-900;
-}
-
-.dark ::selection {
-  @apply bg-primary-900 text-primary-100;
+  @apply bg-primary-500/30 text-primary-200;
 }
