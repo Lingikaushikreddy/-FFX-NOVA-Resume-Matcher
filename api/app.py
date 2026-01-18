@@ -150,7 +150,7 @@ async def startup_event():
 
     Pre-loads embedding model for faster first request.
     """
-    logger.info("Starting FFX NOVA Resume Matcher API...")
+    logger.info("Starting FFX NOVA Resume Matcher API [Environment: Production]")
     logger.info(f"API Version: {settings.api_version}")
     logger.info(f"Semantic Weight: {settings.semantic_weight}")
     logger.info(f"Skill Weight: {settings.skill_weight}")
